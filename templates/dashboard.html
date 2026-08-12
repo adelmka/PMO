@@ -1,1 +1,139 @@
-{% extends "base.html" %}{% block content %}<h1>PMO Pulse Dashboard</h1><p>Portfolio view. <a href="/?period=month">Month</a> · <a href="/?period=quarter">Quarter</a> · <a href="/?period=year">Year</a></p><div class="metrics"><div class="metric">Received<br><strong>{{data.received}}</strong></div><div class="metric">Completed<br><strong>{{data.completed}}</strong></div><div class="metric">YTD received<br><strong>{{data.ytd_received}}</strong></div><div class="metric">YTD completed<br><strong>{{data.ytd_completed}}</strong></div></div><div class="card"><h2>Projects by customer and status</h2><table><tr><th>Reference</th><th>Project</th><th>Customer</th><th>Phase</th><th>Status</th></tr>{% for p in data.projects %}<tr><td><a href="/projects/{{p.id}}">{{p.reference_number}}</a></td><td>{{p.title}}</td><td>{{p.customer.organization_title}}</td><td>{{p.phase}}</td><td>{{p.status}}</td></tr>{% else %}<tr><td colspan="5">No projects yet.</td></tr>{% endfor %}</table></div><div class="card"><h2>Portfolio mix</h2><p><strong>By status:</strong> {% for name,count in data.by_status %}{{name}} ({{count}}){% if not loop.last %}, {% endif %}{% endfor %}</p><p><strong>By category:</strong> {% for name,count in data.by_category %}{{name}} ({{count}}){% if not loop.last %}, {% endif %}{% endfor %}</p></div>{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PMO Pulse{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+    📊 Dashboard
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>PMO Pulse Dashboard</h1>
+
+<div class="card">
+    <p style="margin-bottom: 1rem; color: #666;">
+        Portfolio overview for the selected period. Switch between time ranges to see different metrics.
+    </p>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="/?period=month" class="btn {% if data.period_label == 'Month' %}" style="background: #0f2a47;{% else %}btn-secondary{% endif %}">
+            📅 This Month
+        </a>
+        <a href="/?period=quarter" class="btn {% if data.period_label == 'Quarter' %}" style="background: #0f2a47;{% else %}btn-secondary{% endif %}">
+            📆 This Quarter
+        </a>
+        <a href="/?period=year" class="btn {% if data.period_label == 'Year' %}" style="background: #0f2a47;{% else %}btn-secondary{% endif %}">
+            📊 Year to Date
+        </a>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    <div class="card" style="border-left: 4px solid #12375b;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">Received ({{ data.period_label }})</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: #12375b;">{{ data.received }}</div>
+    </div>
+    
+    <div class="card" style="border-left: 4px solid #28a745;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">Completed ({{ data.period_label }})</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: #28a745;">{{ data.completed }}</div>
+    </div>
+    
+    <div class="card" style="border-left: 4px solid #ffc107;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">YTD Received</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: #ff9800;">{{ data.ytd_received }}</div>
+    </div>
+    
+    <div class="card" style="border-left: 4px solid #17a2b8;">
+        <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">YTD Completed</div>
+        <div style="font-size: 2.5rem; font-weight: bold; color: #17a2b8;">{{ data.ytd_completed }}</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <h2 style="margin-top: 0; font-size: 1.3rem;">Projects by Status</h2>
+        {% if data.by_status %}
+            <table style="width: 100%;">
+                <thead>
+                    <tr style="border: none; background: transparent;">
+                        <th style="padding: 0.5rem 0; border: none;">Status</th>
+                        <th style="padding: 0.5rem 0; border: none; text-align: right;">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status, count in data.by_status %}
+                    <tr style="border: none;">
+                        <td style="padding: 0.75rem 0; border: none;">
+                            <span class="badge badge-primary">{{ status }}</span>
+                        </td>
+                        <td style="padding: 0.75rem 0; border: none; text-align: right; font-weight: bold; font-size: 1.2rem;">{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #999;">No projects yet.</p>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h2 style="margin-top: 0; font-size: 1.3rem;">Projects by Category</h2>
+        {% if data.by_category %}
+            <table style="width: 100%;">
+                <thead>
+                    <tr style="border: none; background: transparent;">
+                        <th style="padding: 0.5rem 0; border: none;">Category</th>
+                        <th style="padding: 0.5rem 0; border: none; text-align: right;">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, count in data.by_category %}
+                    <tr style="border: none;">
+                        <td style="padding: 0.75rem 0; border: none;">
+                            <span class="badge badge-info">{{ category }}</span>
+                        </td>
+                        <td style="padding: 0.75rem 0; border: none; text-align: right; font-weight: bold; font-size: 1.2rem;">{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #999;">No projects yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h2 style="margin-top: 0;">Recent Projects</h2>
+    {% if data.projects %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Phase</th>
+                    <th>Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in data.projects[:10] %}
+                <tr>
+                    <td><a href="/projects/{{ project.id }}"><strong>{{ project.reference_number }}</strong></a></td>
+                    <td>{{ project.title }}</td>
+                    <td><span class="badge badge-primary">{{ project.status }}</span></td>
+                    <td><span class="badge badge-info">{{ project.phase }}</span></td>
+                    <td>{{ project.updated_at.strftime('%b %d, %Y') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="/projects" class="btn btn-secondary">View All Projects →</a>
+        </div>
+    {% else %}
+        <p style="color: #999;">No projects yet. <a href="/requests/new">Submit a new request</a> to get started.</p>
+    {% endif %}
+</div>
+{% endblock %}

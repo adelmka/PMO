@@ -1,1 +1,111 @@
-{% extends "base.html" %}{% block content %}<h1>All projects</h1><div class="card"><table><tr><th>Reference</th><th>Title</th><th>Customer</th><th>Status</th></tr>{% for p in projects %}<tr><td><a href="/projects/{{p.id}}">{{p.reference_number}}</a></td><td>{{p.title}}</td><td>{{p.customer.organization_title}}</td><td>{{p.status}}</td></tr>{% endfor %}</table></div>{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Projects - PMO Pulse{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+    <a href="/">Dashboard</a> / 📋 All Projects
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Projects</h1>
+
+<div class="filters">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #12375b; margin-bottom: 1rem;">🔍 Search & Filter</h3>
+    <form method="get" style="display: contents;">
+        <div class="filter-row">
+            <div class="form-group">
+                <label>Search by Reference or Title</label>
+                <input type="text" name="search" placeholder="e.g., PMO-2026-0001 or Leave Dashboard" value="{{ request.args.get('search', '') }}">
+            </div>
+            <div class="form-group">
+                <label>Filter by Status</label>
+                <select name="status">
+                    <option value="">-- All Statuses --</option>
+                    <option value="Under Review" {% if request.args.get('status') == 'Under Review' %}selected{% endif %}>Under Review</option>
+                    <option value="Accepted" {% if request.args.get('status') == 'Accepted' %}selected{% endif %}>Accepted</option>
+                    <option value="Assigned" {% if request.args.get('status') == 'Assigned' %}selected{% endif %}>Assigned</option>
+                    <option value="Design" {% if request.args.get('status') == 'Design' %}selected{% endif %}>Design</option>
+                    <option value="Build" {% if request.args.get('status') == 'Build' %}selected{% endif %}>Build</option>
+                    <option value="UAT" {% if request.args.get('status') == 'UAT' %}selected{% endif %}>UAT</option>
+                    <option value="Deployment" {% if request.args.get('status') == 'Deployment' %}selected{% endif %}>Deployment</option>
+                    <option value="Delivered" {% if request.args.get('status') == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="On Hold" {% if request.args.get('status') == 'On Hold' %}selected{% endif %}>On Hold</option>
+                    <option value="Cancelled" {% if request.args.get('status') == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">🔎 Search</button>
+            <a href="/projects" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+{% if projects %}
+    <div style="margin-bottom: 1rem; color: #666;">
+        <strong>{{ projects|length }}</strong> project(s) found
+    </div>
+    
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Title</th>
+                    <th>Organization</th>
+                    <th>Status</th>
+                    <th>Phase</th>
+                    <th>Updated</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>
+                        <a href="/projects/{{ project.id }}" style="font-weight: bold; font-size: 1.1rem;">
+                            {{ project.reference_number }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ project.title }}
+                    </td>
+                    <td>
+                        <small style="color: #666;">{{ project.customer.organization_title if project.customer else 'N/A' }}</small>
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if project.status == 'Delivered' %}badge-success
+                            {% elif project.status == 'Cancelled' %}badge-danger
+                            {% elif project.status == 'On Hold' %}badge-warning
+                            {% else %}badge-primary
+                            {% endif %}">
+                            {{ project.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-info">{{ project.phase }}</span>
+                    </td>
+                    <td>
+                        <small>{{ project.updated_at.strftime('%b %d, %Y') }}</small>
+                    </td>
+                    <td>
+                        <a href="/projects/{{ project.id }}" class="btn btn-small">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+        <p style="font-size: 1.1rem; color: #999; margin: 0;">
+            {% if request.args.get('search') or request.args.get('status') %}
+                No projects match your search criteria.
+            {% else %}
+                No projects yet. <a href="/requests/new">Submit your first request</a> to get started!
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+{% endblock %}

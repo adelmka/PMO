@@ -34,7 +34,7 @@ def create_app(test_config=None):
         if request.method == "POST":
             try:
                 project = ProjectService.create_request(request.form)
-                flash(f"Request {project.reference_number} submitted.", "success")
+                flash(f"Request {project.reference_number} submitted successfully!", "success")
                 return redirect(url_for("project_detail", project_id=project.id))
             except ValueError as error:
                 flash(str(error), "error")
@@ -42,14 +42,33 @@ def create_app(test_config=None):
 
     @app.get("/projects")
     def projects():
-        return render_template("projects.html", projects=Project.query.order_by(Project.updated_at.desc()).all())
+        query = Project.query
+        
+        # Search filter
+        search = request.args.get("search", "").strip()
+        if search:
+            search_term = f"%{search}%"
+            query = query.filter(
+                (Project.reference_number.ilike(search_term)) |
+                (Project.title.ilike(search_term))
+            )
+        
+        # Status filter
+        status = request.args.get("status", "").strip()
+        if status:
+            query = query.filter_by(status=status)
+        
+        # Order by most recently updated
+        query = query.order_by(Project.updated_at.desc())
+        
+        return render_template("projects.html", projects=query.all())
 
     @app.route("/projects/<int:project_id>", methods=["GET", "POST"])
     def project_detail(project_id):
         project = db.get_or_404(Project, project_id)
         if request.method == "POST":
             ProjectService.update_project(project, request.form)
-            flash("Project updated.", "success")
+            flash("Project updated successfully!", "success")
             return redirect(url_for("project_detail", project_id=project.id))
         return render_template("project_detail.html", project=project, histories=project.histories, **form_data())
 
@@ -58,18 +77,29 @@ def create_app(test_config=None):
         if request.method == "POST":
             label, kind = request.form.get("label", "").strip(), request.form.get("kind")
             if kind in {"category", "type", "agency", "system"} and label:
-                db.session.add(ConfigurationItem(kind=kind, label=label))
-                db.session.commit()
-                flash("Configuration item added.", "success")
+                # Check if already exists
+                existing = ConfigurationItem.query.filter_by(kind=kind, label=label).first()
+                if existing:
+                    flash(f"'{label}' already exists in {kind}.", "error")
+                else:
+                    db.session.add(ConfigurationItem(kind=kind, label=label))
+                    db.session.commit()
+                    flash(f"Configuration item '{label}' added successfully!", "success")
             else:
-                flash("Choose a valid configuration type and enter a value.", "error")
+                flash("Please choose a valid configuration type and enter a value.", "error")
         return render_template("configuration.html", items=ConfigurationItem.query.order_by(ConfigurationItem.kind, ConfigurationItem.label).all())
 
     return app
 
 def form_data():
-    return {"categories": ConfigurationItem.active("category"), "types": ConfigurationItem.active("type"),
-            "agencies": ConfigurationItem.active("agency"), "systems": ConfigurationItem.active("system"),
-            "resources": Resource.query.order_by(Resource.name).all(), "phases": PHASES, "statuses": STATUSES}
+    return {
+        "categories": ConfigurationItem.active("category"),
+        "types": ConfigurationItem.active("type"),
+        "agencies": ConfigurationItem.active("agency"),
+        "systems": ConfigurationItem.active("system"),
+        "resources": Resource.query.order_by(Resource.name).all(),
+        "phases": PHASES,
+        "statuses": STATUSES
+    }
 
 app = create_app()
