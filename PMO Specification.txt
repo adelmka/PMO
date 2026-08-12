@@ -1,0 +1,82 @@
+PMO Specification
+
+From now on, you will be an expert in Project Management Office (PMO) and software development.
+
+Requirement:
+Create a Project Management Office Tool (called PMO Pulse) to manage and track IT projects.
+
+PMO Process:
+The requests from customers (typically HR organization) come from an on-line interface to an HR Info Sys Org where a customer perform the following:
+
+1. Customer access a page to initiate a request by filling request details which include requester, customer organization (org number, title, etc..) , title, short description, and attachment (if any) related to the project. The request is given an auto-generated reference number and receives and automated e-mail.
+2. an assigned PMO analyst within PMO team (within HR Info Sys Org) reviews the request, then based on the review, the request either rejected or accepted. if it is rejected, the PMO analyst enters the reason. the requester is notified through e-mail of the decision and if there are any additional information. If the request is approved, the PMO Analyst assigns it to a designated team (group) within HR Info Sys Org.
+3. the designated group lead (within HR Info Sys Org) then assigns the project to a designated analyst from the team (within HR Info Sys Org) based on availability and expertise.
+4. the designated analyst (project Lead) contacts the requester (contact) and get more details and update the request. the analyst may conduct workshops or request additional information before starting to create a Detailed Specification Document (DSD) which document the functional requirements. The analyst may contact the designated IT Team to consult with them and may provide additional details and/or conduct further workshops with the customer. 
+5. upon completion of the DSD, the assigned analyst (project lead) initiate an IT Demand on a separate system (belonging to corporate IT org), attached relevant documents, provides business benefits, and gets an IT Demand # from the system.
+6. The IT Demand then goes through a review by the designated IT team (within corporate IT org) and provides estimates (cost, duration, manpower, etc.) for the project.
+7. IT designated team will then do a Detailed Design Scope Document (DDSD) for the projects and share with the designated project lead (within HR Info Sys Org).
+8. The corporate IT Org start development and conduct the necessary testing, then opens the developed solution for the User Acceptance Test (UAT).
+9. the designated project lead (from HR Info Sys Org) coordinate the UAT with the customer 
+10. upon completion of the UAT, it is either return with requested correction or sign-off for deployment
+11. the Corporate IT Team then deploy the solution in production
+12. Project lead update the project request, attached required documents (DSD, DDSD, UAT, UAT Signoff, etc.) and PMO then closes the project.
+
+During the project cycle, PMO provides update on all projects to management through a dashboard that list projects per customer, project status. The dashboard also include total project received per quarter, total projects completed per quarter, YTD totals, projects by category, project status, etc.
+
+Project Categories:
+- New System
+- Systems Enhancement
+- Policy Implementation
+- Audit 
+
+Project Types:
+- SAP
+- Web/Portal Application
+- Dashboard & Reporting
+- AI / GenAI / Data Science
+- Mobile
+- RPA
+- e-Government Data Integration
+
+Project Phases:
+- PMO Review -- designated PMO analyst responsibility
+- SME Review -- designated team review
+- Functional Requirement (DSD)
+- IT Demand Submitted
+- IT Estimation
+- IT Build
+- UAT
+- Deployment
+
+Project Status:
+- Under Review
+- Accepted
+- Assigned
+- Design
+- Build
+- UAT
+- Deployment
+- Delivered
+- on-hold
+- Cancelled
+
+Impacted Systems: select from a configurable list of existing systems.
+
+Construction Agency:
+- IT
+- In-House
+- Vendor
+
+Your Task:
+Based on the above and your expertise and available PMO tools in the market, you will use your expertise and industry standards to develop the tool: 
+1. Generate a requirement specification document for a PMO Tool to track requests for IT projects and track, manage, and reports on their progress. 2. You will then use this requirement specification document to develop a project development plan (with phases) to start developing the components of the PMO tool. Feel free to augment/adjust the above specific to make it simple and coherent to conform to PMO industry standards.
+3. You will develop the PMO tool using Python (using OOP) and the data should be persisted (stored) in a recommended database (e.g., MySQL). The project categories and types should be configurable and not hard-coded. The construction agency should be configurable as well. The tool should be able to assign resources to the project. The tool is not to manage detailed granular phases or deliverable of each project. It only monitors the projects at phase level. 
+4. You will develop GUI for the tool and provides useable dashboard. 
+5. You will develop testing scenario to cover the tool
+6. You will dashboard a dashboard that list projects per customer, project status. The dashboard also include total project received per quarter, total projects completed per quarter, YTD totals, projects by category, project status, etc. It should provide comparison between received projects vs. completed projects (monthly, quarterly, annually, during specific period).
+
+
+Project Development Repository:
+We will use GitHub repository called PMO. You will generate all relevant documents(e.g., architecture, models, classes, database design,  integration, reporting, services, utilities, tests, README, flows, diagrams, API, installation, user guide, developer guide, validation, codes, tests, etc.) in this PMO repository. You may structure the PMO repository accordingly.
+
+
