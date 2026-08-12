@@ -1,1 +1,204 @@
-{% extends "base.html" %}{% block content %}<h1>{{project.reference_number}} — {{project.title}}</h1><p>{{project.short_description}}</p><div class="card"><form method="post"><label>Phase</label><select name="phase">{% for x in phases %}<option {% if x==project.phase %}selected{% endif %}>{{x}}</option>{% endfor %}</select><label>Status</label><select name="status">{% for x in statuses %}<option {% if x==project.status %}selected{% endif %}>{{x}}</option>{% endfor %}</select><label>Assigned team</label><input name="assigned_team" value="{{project.assigned_team or ''}}"><label>PMO analyst</label><select name="pmo_analyst_id"><option value="">—</option>{% for r in resources %}<option value="{{r.id}}" {% if project.pmo_analyst_id==r.id %}selected{% endif %}>{{r.name}}</option>{% endfor %}</select><label>Group lead</label><select name="group_lead_id"><option value="">—</option>{% for r in resources %}<option value="{{r.id}}" {% if project.group_lead_id==r.id %}selected{% endif %}>{{r.name}}</option>{% endfor %}</select><label>Project lead</label><select name="project_lead_id"><option value="">—</option>{% for r in resources %}<option value="{{r.id}}" {% if project.project_lead_id==r.id %}selected{% endif %}>{{r.name}}</option>{% endfor %}</select><label>IT Demand #</label><input name="it_demand_number" value="{{project.it_demand_number or ''}}"><label>Estimated cost</label><input name="estimated_cost" type="number" step=".01" value="{{project.estimated_cost or ''}}"><label>Duration (weeks)</label><input name="estimated_duration_weeks" type="number" value="{{project.estimated_duration_weeks or ''}}"><label>Document links</label><textarea name="document_links">{{project.document_links or ''}}</textarea><label>Decision/rejection reason</label><textarea name="decision_reason">{{project.decision_reason or ''}}</textarea><label>Update note</label><textarea name="note"></textarea><button>Save update</button></form></div><div class="card"><h2>Status history</h2>{% for h in histories %}<p><strong>{{h.created_at.strftime('%Y-%m-%d')}}</strong> · {{h.phase}} / {{h.status}} — {{h.note or 'No note'}}</p>{% endfor %}</div>{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}{{ project.reference_number }} - PMO Pulse{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+    <a href="/">Dashboard</a> / <a href="/projects">Projects</a> / {{ project.reference_number }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 2rem;">
+    <div>
+        <h1 style="margin-bottom: 0.5rem;">{{ project.reference_number }}</h1>
+        <h2 style="margin: 0; font-size: 1.3rem; font-weight: 400; color: #666;">{{ project.title }}</h2>
+    </div>
+    <div style="text-align: right;">
+        <p style="margin: 0; font-size: 0.9rem; color: #999;">Submitted {{ project.created_at.strftime('%b %d, %Y') }}</p>
+    </div>
+</div>
+
+<p style="background: #f0f8ff; padding: 1rem; border-left: 4px solid #12375b; border-radius: 4px; color: #004085;">
+    📌 {{ project.short_description }}
+</p>
+
+<!-- Current Status Section -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
+    <div class="card">
+        <h3 style="margin-top: 0; color: #12375b;">Current Phase</h3>
+        <div style="font-size: 1.8rem; font-weight: bold; color: #12375b; margin: 1rem 0;">
+            {{ project.phase }}
+        </div>
+        <p style="color: #666; margin: 0; font-size: 0.9rem;">Project lifecycle stage</p>
+    </div>
+    
+    <div class="card">
+        <h3 style="margin-top: 0; color: #12375b;">Current Status</h3>
+        <div style="font-size: 1.8rem; font-weight: bold; margin: 1rem 0;">
+            <span class="badge 
+                {% if project.status == 'Delivered' %}badge-success
+                {% elif project.status == 'Cancelled' %}badge-danger
+                {% elif project.status == 'On Hold' %}badge-warning
+                {% elif project.status == 'Under Review' or project.status == 'Accepted' %}badge-primary
+                {% else %}badge-info
+                {% endif %}" style="font-size: 1.1rem; padding: 0.5rem 1rem;">
+                {{ project.status }}
+            </span>
+        </div>
+        <p style="color: #666; margin: 0; font-size: 0.9rem;">Current workflow status</p>
+    </div>
+</div>
+
+<!-- Project Information -->
+<div class="card">
+    <h3 style="margin-top: 0;">Project Information</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+            <p><strong>Category:</strong> {{ project.category }}</p>
+            <p><strong>Type:</strong> {{ project.project_type }}</p>
+            <p><strong>Agency:</strong> {{ project.construction_agency }}</p>
+            <p><strong>Requester:</strong> {{ project.requester_name }} ({{ project.requester_email }})</p>
+        </div>
+        <div>
+            <p><strong>Organization:</strong> {{ project.customer.organization_title if project.customer else 'N/A' }}</p>
+            {% if project.impacted_systems %}
+                <p><strong>Impacted Systems:</strong></p>
+                <p style="margin-top: 0.5rem; color: #666;">{{ project.impacted_systems }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Edit Form -->
+<form method="post" class="card">
+    <h3 style="margin-top: 0;">Update Project</h3>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Phase</label>
+            <select name="phase">
+                {% for p in phases %}
+                    <option value="{{ p }}" {% if project.phase == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Status</label>
+            <select name="status">
+                {% for s in statuses %}
+                    <option value="{{ s }}" {% if project.status == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>PMO Analyst</label>
+            <select name="pmo_analyst_id">
+                <option value="">-- Unassigned --</option>
+                {% for r in resources %}
+                    <option value="{{ r.id }}" {% if project.pmo_analyst_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Group Lead</label>
+            <select name="group_lead_id">
+                <option value="">-- Unassigned --</option>
+                {% for r in resources %}
+                    <option value="{{ r.id }}" {% if project.group_lead_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Project Lead</label>
+            <select name="project_lead_id">
+                <option value="">-- Unassigned --</option>
+                {% for r in resources %}
+                    <option value="{{ r.id }}" {% if project.project_lead_id == r.id %}selected{% endif %}>{{ r.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Assigned Team</label>
+            <input type="text" name="assigned_team" value="{{ project.assigned_team or '' }}" placeholder="e.g., Platform Team">
+        </div>
+    </div>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label>Estimated Duration (weeks)</label>
+            <input type="number" name="estimated_duration_weeks" value="{{ project.estimated_duration_weeks or '' }}" min="0">
+        </div>
+        <div class="form-group">
+            <label>Estimated Cost</label>
+            <input type="number" name="estimated_cost" value="{{ project.estimated_cost or '' }}" step="0.01" min="0" placeholder="0.00">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Decision Reason</label>
+        <textarea name="decision_reason" placeholder="Document the reasoning behind your decision...">{{ project.decision_reason or '' }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>IT Demand Number</label>
+        <input type="text" name="it_demand_number" value="{{ project.it_demand_number or '' }}" placeholder="e.g., DEMAND-2026-001">
+    </div>
+    
+    <div class="form-group">
+        <label>Document Links</label>
+        <textarea name="document_links" placeholder="URLs to related documents, specs, or attachments (one per line)">{{ project.document_links or '' }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label>Change Note <small style="color: #999;">(optional)</small></label>
+        <textarea name="note" placeholder="Describe what changed and why..."></textarea>
+    </div>
+    
+    <input type="hidden" name="changed_by" value="PMO User">
+    
+    <button type="submit" style="width: 100%;">💾 Save Changes</button>
+</form>
+
+<!-- Status History Timeline -->
+{% if histories %}
+<div class="card">
+    <h3 style="margin-top: 0;">Project History</h3>
+    <p style="color: #666; font-size: 0.95rem; margin-bottom: 2rem;">Timeline of phase and status changes</p>
+    
+    <div class="timeline">
+        {% for h in histories %}
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <div class="timeline-time">
+                    📅 {{ h.created_at.strftime('%a, %b %d, %Y at %I:%M %p') }}
+                </div>
+                <div class="timeline-phase" style="margin-top: 0.75rem;">
+                    <span class="badge badge-info">{{ h.phase }}</span>
+                    <span style="color: #999; margin: 0 0.5rem;">→</span>
+                    <span class="badge 
+                        {% if h.status == 'Delivered' %}badge-success
+                        {% elif h.status == 'Cancelled' %}badge-danger
+                        {% elif h.status == 'On Hold' %}badge-warning
+                        {% else %}badge-primary
+                        {% endif %}">
+                        {{ h.status }}
+                    </span>
+                </div>
+                {% if h.note %}
+                <p class="timeline-note">"{{ h.note }}"</p>
+                {% endif %}
+                <p class="timeline-by">✏️ Changed by {{ h.changed_by }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

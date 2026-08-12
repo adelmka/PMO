@@ -1,1 +1,100 @@
-{% extends "base.html" %}{% block content %}<h1>Submit IT project request</h1><form method="post"><label>Requester name</label><input name="requester_name" required><label>Requester email</label><input name="requester_email" type="email" required><label>Organization number</label><input name="organization_number" required><label>Organization title</label><input name="organization_title" required><label>Project title</label><input name="title" required><label>Short description</label><textarea name="short_description" required></textarea><label>Category</label><select name="category">{% for x in categories %}<option>{{x.label}}</option>{% endfor %}</select><label>Project type</label><select name="project_type">{% for x in types %}<option>{{x.label}}</option>{% endfor %}</select><label>Construction agency</label><select name="construction_agency">{% for x in agencies %}<option>{{x.label}}</option>{% endfor %}</select><label>Impacted systems</label><select name="impacted_systems" multiple>{% for x in systems %}<option>{{x.label}}</option>{% endfor %}</select><button>Submit request</button></form>{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}New Project Request - PMO Pulse{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+    <a href="/">Dashboard</a> / ➕ New Request
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Submit IT Project Request</h1>
+<p style="color: #666; margin-bottom: 2rem;">
+    Fill out this form to submit a new project for PMO review. All required fields are marked with <span style="color: #dc3545; font-weight: bold;">*</span>
+</p>
+
+<form method="post" class="card" style="max-width: 800px;">
+    <h2 style="margin-top: 0; font-size: 1.3rem;">Requester Information</h2>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="required">Requester Name</label>
+            <input type="text" name="requester_name" value="{{ request.form.get('requester_name', '') }}" required placeholder="Your full name">
+        </div>
+        <div class="form-group">
+            <label class="required">Requester Email</label>
+            <input type="email" name="requester_email" value="{{ request.form.get('requester_email', '') }}" required placeholder="your.email@example.com">
+        </div>
+    </div>
+    
+    <h2 style="font-size: 1.3rem; margin-top: 2rem;">Organization Information</h2>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="required">Organization Number</label>
+            <input type="text" name="organization_number" value="{{ request.form.get('organization_number', '') }}" required placeholder="e.g., HR-01">
+        </div>
+        <div class="form-group">
+            <label class="required">Organization Title</label>
+            <input type="text" name="organization_title" value="{{ request.form.get('organization_title', '') }}" required placeholder="e.g., Human Resources">
+        </div>
+    </div>
+    
+    <h2 style="font-size: 1.3rem; margin-top: 2rem;">Project Details</h2>
+    
+    <div class="form-group">
+        <label class="required">Project Title</label>
+        <input type="text" name="title" value="{{ request.form.get('title', '') }}" required placeholder="Brief project name">
+    </div>
+    
+    <div class="form-group">
+        <label class="required">Short Description</label>
+        <textarea name="short_description" required placeholder="What is this project about? What problem does it solve?">{{ request.form.get('short_description', '') }}</textarea>
+    </div>
+    
+    <h2 style="font-size: 1.3rem; margin-top: 2rem;">Project Classification</h2>
+    
+    <div class="form-row">
+        <div class="form-group">
+            <label class="required">Category</label>
+            <select name="category" required>
+                <option value="">-- Select a category --</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.label }}" {% if request.form.get('category') == cat.label %}selected{% endif %}>{{ cat.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="required">Project Type</label>
+            <select name="project_type" required>
+                <option value="">-- Select a type --</option>
+                {% for t in types %}
+                    <option value="{{ t.label }}" {% if request.form.get('project_type') == t.label %}selected{% endif %}>{{ t.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="required">Construction Agency</label>
+        <select name="construction_agency" required>
+            <option value="">-- Select an agency --</option>
+            {% for agency in agencies %}
+                <option value="{{ agency.label }}" {% if request.form.get('construction_agency') == agency.label %}selected{% endif %}>{{ agency.label }}</option>
+            {% endfor %}
+        </select>
+        <small style="color: #666; margin-top: 0.5rem; display: block;">Who will be responsible for building/implementing this project?</small>
+    </div>
+    
+    <div class="form-group">
+        <label>Impacted Systems <span style="color: #999;">(optional)</span></label>
+        <textarea name="impacted_systems" placeholder="List any systems that will be affected by this project...">{{ request.form.get('impacted_systems', '') }}</textarea>
+    </div>
+    
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button type="submit" style="flex: 1;">📤 Submit Request</button>
+        <a href="/" class="btn btn-secondary" style="flex: 1; text-align: center;">Cancel</a>
+    </div>
+</form>
+{% endblock %}
