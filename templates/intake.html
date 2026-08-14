@@ -70,7 +70,7 @@
             <select name="project_type" required>
                 <option value="">-- Select a type --</option>
                 {% for t in types %}
-                    <option value="{{ t.label }}" {% if request.form.get('project_type') == t.label %}selected{% endif %}>{{ t.label }}</option>
+                    <option value="{{ t.value }}" {% if request.form.get('project_type') == t.label %}selected{% endif %}>{{ t.label }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -81,7 +81,7 @@
         <select name="construction_agency" required>
             <option value="">-- Select an agency --</option>
             {% for agency in agencies %}
-                <option value="{{ agency.label }}" {% if request.form.get('construction_agency') == agency.label %}selected{% endif %}>{{ agency.label }}</option>
+                <option value="{{ agency.value }}" {% if request.form.get('construction_agency') == agency.label %}selected{% endif %}>{{ agency.label }}</option>
             {% endfor %}
         </select>
         <small style="color: #666; margin-top: 0.5rem; display: block;">Who will be responsible for building/implementing this project?</small>
