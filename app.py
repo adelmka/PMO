@@ -103,3 +103,38 @@ def form_data():
     }
 
 app = create_app()
+
+@app.route("/requests/new")
+def new_request():
+    agencies = ConfigurationItem.query.filter_by(kind="agency").all()
+    categories = ConfigurationItem.query.filter_by(kind="category").all()
+    systems = ConfigurationItem.query.filter_by(kind="system").all()
+    types = ConfigurationItem.query.filter_by(kind="type").all()
+
+    return render_template(
+        "intake.html",
+        agencies=agencies,
+        categories=categories,
+        systems=systems,
+        types=types
+    )
+
+@app.route("/configuration/<int:item_id>/edit")
+def edit_configuration(item_id):
+    item = ConfigurationItem.query.get_or_404(item_id)
+    return render_template("edit_configuration.html", item=item)
+
+@app.route("/configuration/<int:item_id>/update", methods=["POST"])
+def update_configuration(item_id):
+    item = ConfigurationItem.query.get_or_404(item_id)
+    item.label = request.form["label"]
+    item.value = request.form["value"]
+    db.session.commit()
+    return redirect("/configuration")
+
+@app.route("/configuration/<int:item_id>/delete", methods=["POST"])
+def delete_configuration(item_id):
+    item = ConfigurationItem.query.get_or_404(item_id)
+    db.session.delete(item)
+    db.session.commit()
+    return redirect("/configuration")
