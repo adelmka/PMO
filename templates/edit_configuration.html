@@ -1,0 +1,11 @@
+<h2>Edit {{ item.kind|capitalize }}</h2>
+
+<form action="/configuration/{{ item.id }}/update" method="POST">
+  <label>Label</label>
+  <input type="text" name="label" value="{{ item.label }}" required>
+
+  <label>Value</label>
+  <input type="text" name="value" value="{{ item.value }}" required>
+
+  <button type="submit">Save Changes</button>
+</form>

@@ -61,7 +61,7 @@
             <select name="category" required>
                 <option value="">-- Select a category --</option>
                 {% for cat in categories %}
-                    <option value="{{ cat.label }}" {% if request.form.get('category') == cat.label %}selected{% endif %}>{{ cat.label }}</option>
+                    <option value="{{ cat.value }}" {% if request.form.get('category') == cat.label %}selected{% endif %}>{{ cat.label }}</option>
                 {% endfor %}
             </select>
         </div>

@@ -67,8 +67,20 @@
                         <span style="background: #ddd; color: #666; padding: 0.2rem 0.5rem; border-radius: 3px; font-size: 0.8rem; margin-left: 0.5rem;">Inactive</span>
                     {% endif %}
                 </span>
+
+                <!-- ⭐ Edit/Delete Buttons -->
+                <span>
+                    <a href="/configuration/{{ item.id }}/edit" style="margin-right: 0.5rem; color: #12375b; text-decoration: none;">✏️ Edit</a>
+
+                    <form action="/configuration/{{ item.id }}/delete" method="POST" style="display:inline;">
+                        <button type="submit" style="background: none; border: none; color: #b30000; cursor: pointer;">
+                            🗑️ Delete
+                        </button>
+                    </form>
+                </span>
             </div>
             {% endfor %}
+
         </div>
     </div>
     {% endfor %}
